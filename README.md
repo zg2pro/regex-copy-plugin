@@ -1,3 +1,9 @@
+[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/zg2pro/regex-copy-plugin) 
+[![Build](https://travis-ci.org/zg2pro/regex-copy-plugin.svg?branch=master)](https://travis-ci.org/zg2pro/regex-copy-plugin)
+[![BCH compliance](https://bettercodehub.com/edge/badge/zg2pro/regex-copy-plugin?branch=master)](https://bettercodehub.com/)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.zg2pro.copy/regex-copy-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.zg2pro.copy/regex-copy-plugin)
+
+
 # regex-copy-plugin
 
 [![Build Status](https://travis-ci.org/ggtools/regex-copy-plugin.svg?branch=master)](https://travis-ci.org/ggtools/regex-copy-plugin)
