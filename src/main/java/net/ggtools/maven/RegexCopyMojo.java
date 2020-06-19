@@ -29,13 +29,12 @@ import org.apache.maven.plugins.annotations.Parameter;
  */
 @Mojo(name = "regex-copy")
 public class RegexCopyMojo extends AbstractMojo {
+    private static final CopyOption[] COPY_OPTIONS_WITHOUT_OVERWRITE = new CopyOption[] {
+        StandardCopyOption.COPY_ATTRIBUTES
+    };
     private static final CopyOption[] COPY_OPTIONS_WITH_OVERWRITE = new CopyOption[] {
         StandardCopyOption.COPY_ATTRIBUTES,
         StandardCopyOption.REPLACE_EXISTING
-    };
-
-    private static final CopyOption[] COPY_OPTIONS_WITHOUT_OVERWRITE = new CopyOption[] {
-        StandardCopyOption.COPY_ATTRIBUTES
     };
 
     @Parameter(defaultValue = "${project.basedir}")
