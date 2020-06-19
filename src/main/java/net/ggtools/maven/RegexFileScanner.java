@@ -17,14 +17,14 @@ import java.util.regex.Pattern;
  */
 public class RegexFileScanner {
 
-    public static List<Result> scan(Path root, String regexFilter) throws IOException {
+    public static List<Result> scan(Path root, String regexFilter)
+        throws IOException {
         RegexFileVisitor visitor = new RegexFileVisitor(root, regexFilter);
         Files.walkFileTree(root, visitor);
         return new ArrayList<>(visitor.results);
     }
 
     public static class Result {
-
         private final Path path;
 
         private final String[] groups;
@@ -63,14 +63,12 @@ public class RegexFileScanner {
         public String[] getGroups() {
             return groups;
         }
-
     }
 
     /**
      * @author Christophe Labouisse on 26/07/2015.
      */
     static class RegexFileVisitor extends SimpleFileVisitor<Path> {
-
         private final Path baseDir;
 
         private final Pattern filter;
@@ -83,14 +81,21 @@ public class RegexFileScanner {
         }
 
         @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        public FileVisitResult preVisitDirectory(
+            Path dir,
+            BasicFileAttributes attrs
+        )
+            throws IOException {
             Objects.requireNonNull(dir);
             Objects.requireNonNull(attrs);
-            return addResultIfMatch(dir) ? FileVisitResult.SKIP_SUBTREE : FileVisitResult.CONTINUE;
+            return addResultIfMatch(dir)
+                ? FileVisitResult.SKIP_SUBTREE
+                : FileVisitResult.CONTINUE;
         }
 
         @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+            throws IOException {
             addResultIfMatch(file);
             return super.visitFile(file, attrs);
         }
@@ -108,6 +113,5 @@ public class RegexFileScanner {
             }
             return false;
         }
-
     }
 }

@@ -1,5 +1,9 @@
 package net.ggtools.maven;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.*;
+import java.util.List;
 /*
  * Copyright 2001-2005 The Apache Software Foundation.
  *
@@ -21,19 +25,18 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.*;
-import java.util.List;
-
 /**
  */
 @Mojo(name = "regex-copy")
 public class RegexCopyMojo extends AbstractMojo {
+    private static final CopyOption[] COPY_OPTIONS_WITH_OVERWRITE = new CopyOption[] {
+        StandardCopyOption.COPY_ATTRIBUTES,
+        StandardCopyOption.REPLACE_EXISTING
+    };
 
-    private static final CopyOption[] COPY_OPTIONS_WITH_OVERWRITE = new CopyOption[]{StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING};
-
-    private static final CopyOption[] COPY_OPTIONS_WITHOUT_OVERWRITE = new CopyOption[]{StandardCopyOption.COPY_ATTRIBUTES};
+    private static final CopyOption[] COPY_OPTIONS_WITHOUT_OVERWRITE = new CopyOption[] {
+        StandardCopyOption.COPY_ATTRIBUTES
+    };
 
     @Parameter(defaultValue = "${project.basedir}")
     private File sourceDirectory;
@@ -53,12 +56,25 @@ public class RegexCopyMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException {
         getLog().info("Performing regex-copy");
         getLog().debug("Getting candidate files and directories");
+        String firstSource = source;
+        int firstIndexOfSlash = firstSource.indexOf("/");
+        if (firstIndexOfSlash > -1) {
+            firstSource = firstSource.substring(0, firstIndexOfSlash);
+        }
+        run(sourceDirectory.toPath(), source);
+    }
+
+    private void run(Path rootPath, String curSource)
+        throws MojoExecutionException {
         try {
-            List<RegexFileScanner.Result> results = RegexFileScanner.scan(sourceDirectory.toPath(), source);
+            List<RegexFileScanner.Result> results = RegexFileScanner.scan(
+                rootPath,
+                curSource
+            );
             getLog().info("Got " + results.size() + " files or directories");
             getLog().debug("Results: " + results);
             for (RegexFileScanner.Result result : results) {
-                copyResult(result);
+                copyResult(result, curSource);
             }
         } catch (IOException e) {
             String msg = "Error while retrieving candidate files";
@@ -78,10 +94,32 @@ public class RegexCopyMojo extends AbstractMojo {
         return destinationDirectory.toPath().resolve(resultDest);
     }
 
-    private void copyResult(RegexFileScanner.Result result) throws IOException {
+    private void copyResult(RegexFileScanner.Result result, String curSource)
+        throws MojoExecutionException, IOException {
         Path destPath = mapResultToDestination(result).toAbsolutePath();
-        if (!Files.isRegularFile(result.getPath())) {
-            getLog().warn("Only files are accepted at the moment skipping " + result.getPath());
+        if (Files.isDirectory(result.getPath())) {
+            String remainingPath = source.substring(
+                curSource.length() + 1,
+                source.length()
+            );
+            int firstIndexOfSlash = remainingPath.indexOf("/");
+            if (firstIndexOfSlash > -1) {
+                remainingPath = remainingPath.substring(0, firstIndexOfSlash);
+            } else {
+                getLog()
+                    .warn(
+                        "your regular expression must point to files, not directories"
+                    );
+                return;
+            }
+            run(result.getPath(), remainingPath);
+            return;
+        } else if (!Files.isRegularFile(result.getPath())) {
+            getLog()
+                .warn(
+                    "Only files are accepted at the moment skipping " +
+                    result.getPath()
+                );
             return;
         }
 
@@ -90,7 +128,13 @@ public class RegexCopyMojo extends AbstractMojo {
         }
 
         try {
-            Files.copy(result.getPath(), destPath, overwrite ? COPY_OPTIONS_WITH_OVERWRITE : COPY_OPTIONS_WITHOUT_OVERWRITE);
+            Files.copy(
+                result.getPath(),
+                destPath,
+                overwrite
+                    ? COPY_OPTIONS_WITH_OVERWRITE
+                    : COPY_OPTIONS_WITHOUT_OVERWRITE
+            );
         } catch (FileAlreadyExistsException e) {
             getLog().warn("File " + destPath + " already exists, skipping");
             getLog().debug(e);
