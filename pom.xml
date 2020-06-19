@@ -231,7 +231,7 @@
             <plugin>
                 <groupId>com.github.zg2pro.formatter</groupId>
                 <artifactId>zg2pro-formatter-plugin</artifactId>
-                <version>0.4</version>
+                <version>0.5</version>
                 <executions>
                     <execution>
                         <goals>
