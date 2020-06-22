@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 /*
  * Copyright 2001-2005 The Apache Software Foundation.
  *
@@ -85,32 +87,41 @@ public class RegexCopyMojo extends AbstractMojo {
 
     private Path mapResultToDestination(RegexFileScanner.Result result) {
         String resultDest = destination;
-        for (int i = 0; i < result.getGroups().length; i++) {
-            String group = result.getGroups()[i];
-            if (group != null) {
-                resultDest = resultDest.replaceAll("\\{" + i + "\\}", group);
+        //String fileAbsolutePath = result.getPath().toString();
+        //String fileRelativePath = fileAbsolutePath.substring(fileAbsolutePath.indexOf(sourceDirectory.));
+
+        Pattern patt = Pattern.compile(
+            sourceDirectory.getAbsolutePath().replaceAll("\\\\", "/") +
+            "/" +
+            source
+        );
+        Matcher m = patt.matcher(
+            result.getPath().toString().replaceAll("\\\\", "\\/")
+        );
+        if (m.matches()) {
+            for (int i = 1; i < m.toMatchResult().groupCount() + 1; i++) {
+                String group = m.group(i);
+                if (group != null) {
+                    resultDest =
+                        resultDest.replaceAll("\\{" + i + "\\}", group);
+                }
             }
+            return destinationDirectory.toPath().resolve(resultDest);
         }
-        return destinationDirectory.toPath().resolve(resultDest);
+        return null;
     }
 
     private void copyResult(RegexFileScanner.Result result, String curSource)
         throws MojoExecutionException, IOException {
-        Path destPath = mapResultToDestination(result).toAbsolutePath();
         if (Files.isDirectory(result.getPath())) {
+            int lastIndexOfCurSource = source.lastIndexOf(curSource);
             String remainingPath = source.substring(
-                curSource.length() + 1,
+                lastIndexOfCurSource + curSource.length() + 1,
                 source.length()
             );
             int firstIndexOfSlash = remainingPath.indexOf("/");
             if (firstIndexOfSlash > -1) {
                 remainingPath = remainingPath.substring(0, firstIndexOfSlash);
-            } else {
-                getLog()
-                    .warn(
-                        "your regular expression must point to files, not directories"
-                    );
-                return;
             }
             run(result.getPath(), remainingPath);
             return;
@@ -123,6 +134,11 @@ public class RegexCopyMojo extends AbstractMojo {
             return;
         }
 
+        Path destPath = mapResultToDestination(result);
+        if (destPath == null) {
+            return;
+        }
+        destPath = destPath.toAbsolutePath();
         if (!Files.exists(destPath.getParent())) {
             Files.createDirectories(destPath.getParent());
         }

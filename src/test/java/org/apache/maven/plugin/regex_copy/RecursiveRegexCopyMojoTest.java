@@ -3,6 +3,8 @@ package org.apache.maven.plugin.regex_copy;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
@@ -60,18 +62,30 @@ public class RecursiveRegexCopyMojoTest {
                         .get("destinationDirectory")
                 );
 
+        Path tempDirectory = Files.createTempDirectory(
+            TARGET_DIRECTORY.toPath(),
+            "test-recursive-example"
+        );
+
         rule.setVariableValueToObject(
             mojo,
             "destinationDirectory",
-            new File(
-                "target/test-recursive-example/" +
-                destinationDirectory.getPath()
-            )
+            tempDirectory.resolve(destinationDirectory.getPath()).toFile()
         );
 
         mojo.execute();
-        //        assertThat(tempDirectory.resolve("RegexCopyMojo/Test.java").toFile())
-        //            .exists()
-        //            .isFile();
+        assertThat(
+                tempDirectory
+                    .resolve("target")
+                    .resolve("classes")
+                    .resolve("WEB-INF")
+                    .resolve("services")
+                    .resolve("xxxx")
+                    .resolve("META-INF")
+                    .resolve("dummyfic.xml")
+                    .toFile()
+            )
+            .exists()
+            .isFile();
     }
 }
