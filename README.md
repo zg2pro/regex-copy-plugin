@@ -16,12 +16,14 @@ The maven resource plugins lacks the possibility of renaming the resources durin
 
 ```xml
 <plugin>
-    <artifactId>regex-copy-maven-plugin</artifactId>
-    <configuration>
-        <sourceDirectory>src/main/java</sourceDirectory>
-        <destinationDirectory>target/test-harness/regex-copy</destinationDirectory>
-        <source>(net/ggtools/maven)/(.+)\.java</source>
-        <destination>{2}/Test.java</destination>
-    </configuration>
+                <groupId>com.github.zg2pro.copy</groupId>
+                <artifactId>regex-copy-maven-plugin</artifactId>
+                <version>0.1</version><!-- check latest version on maven central -->
+                <configuration>
+                    <sourceDirectory>fake-target/dependency/wsdl-examples/</sourceDirectory>
+                    <destinationDirectory>target/classes/WEB-INF/services/</destinationDirectory>
+                    <source>([a-zA-Z]+)/resources/(.+)</source>
+                    <destination>{1}/META-INF/{2}</destination>
+                </configuration>
 </plugin>
 ```
