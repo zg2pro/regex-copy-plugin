@@ -52,6 +52,7 @@ public class RegexCopyMojo extends AbstractMojo {
     @Parameter(property = "regex-copy.overwrite", defaultValue = "false")
     private boolean overwrite;
 
+    @Override
     public void execute() throws MojoExecutionException {
         getLog().info("Performing regex-copy");
         getLog().debug("Getting candidate files and directories");
@@ -60,7 +61,7 @@ public class RegexCopyMojo extends AbstractMojo {
         if (firstIndexOfSlash > -1) {
             firstSource = firstSource.substring(0, firstIndexOfSlash);
         }
-        run(sourceDirectory.toPath(), source);
+        run(sourceDirectory.toPath(), firstSource);
     }
 
     private void run(Path rootPath, String curSource)
