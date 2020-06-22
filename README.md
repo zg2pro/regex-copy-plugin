@@ -20,7 +20,7 @@ The maven resource plugins lacks the possibility of renaming the resources durin
                 <artifactId>regex-copy-maven-plugin</artifactId>
                 <version>0.1</version><!-- check latest version on maven central -->
                 <configuration>
-                    <sourceDirectory>fake-target/dependency/wsdl-examples/</sourceDirectory>
+                    <sourceDirectory>target/dependency/wsdl-examples/</sourceDirectory>
                     <destinationDirectory>target/classes/WEB-INF/services/</destinationDirectory>
                     <source>([a-zA-Z]+)/resources/(.+)</source>
                     <destination>{1}/META-INF/{2}</destination>
