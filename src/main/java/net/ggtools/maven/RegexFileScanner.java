@@ -1,5 +1,7 @@
 package net.ggtools.maven;
 
+import static java.rmi.server.RemoteServer.getLog;
+
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -9,6 +11,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 
 /**
  * Scans a root directory for files or directory matching a specific regular expression.
@@ -75,8 +79,12 @@ public class RegexFileScanner {
 
         private final Collection<Result> results = new LinkedHashSet<>();
 
+        private Log log = new SystemStreamLog();
+
         public RegexFileVisitor(Path baseDir, String filteringRegex) {
             this.baseDir = baseDir;
+            log.debug(baseDir.toString());
+            log.debug(filteringRegex);
             filter = Pattern.compile(filteringRegex);
         }
 
