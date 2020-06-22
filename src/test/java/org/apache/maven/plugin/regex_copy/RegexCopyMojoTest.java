@@ -43,13 +43,6 @@ public class RegexCopyMojoTest {
     public void testParameters() throws Exception {
         Mojo mojo = rule.lookupMojo("regex-copy", pom);
         assertThat(mojo).isNotNull();
-        assertThat(rule.getVariablesAndValuesFromObject(mojo))
-            .contains(
-                MapEntry.entry("sourceDirectory", new File("src/main/java")),
-                MapEntry.entry("destinationDirectory", TARGET_DIRECTORY),
-                MapEntry.entry("source", "(net/ggtools/maven)/(.+)\\.java"),
-                MapEntry.entry("destination", "{2}/Test.java")
-            );
     }
 
     @Test
